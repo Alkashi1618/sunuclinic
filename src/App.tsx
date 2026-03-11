@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -22,18 +24,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/connexion" element={<Login />} />
-          <Route path="/inscription" element={<Register />} />
-          <Route path="/recherche" element={<SearchDoctors />} />
-          <Route path="/rendez-vous/:doctorId" element={<BookAppointment />} />
-          <Route path="/patient" element={<PatientDashboard />} />
-          <Route path="/medecin" element={<DoctorDashboard />} />
-          <Route path="/secretaire" element={<SecretaryDashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/connexion" element={<Login />} />
+            <Route path="/inscription" element={<Register />} />
+            <Route path="/recherche" element={<SearchDoctors />} />
+            <Route path="/rendez-vous/:doctorId" element={<BookAppointment />} />
+            <Route path="/patient" element={<ProtectedRoute allowedRoles={["patient"]}><PatientDashboard /></ProtectedRoute>} />
+            <Route path="/medecin" element={<ProtectedRoute allowedRoles={["medecin"]}><DoctorDashboard /></ProtectedRoute>} />
+            <Route path="/secretaire" element={<ProtectedRoute allowedRoles={["secretaire"]}><SecretaryDashboard /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

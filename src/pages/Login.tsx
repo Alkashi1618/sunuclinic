@@ -1,14 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Eye, EyeOff } from "lucide-react";
+import { Heart, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/lib/mockDatabase";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<"patient" | "medecin" | "secretaire" | "admin">("patient");
+  const [role, setRole] = useState<UserRole>("patient");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const roles = [
     { key: "patient" as const, label: "Patient" },
@@ -22,6 +29,31 @@ const Login = () => {
     medecin: "/medecin",
     secretaire: "/secretaire",
     admin: "/admin",
+  };
+
+  const demoCredentials: Record<string, { email: string; password: string }> = {
+    patient: { email: "patient@medicare.fr", password: "Patient123!" },
+    medecin: { email: "medecin@medicare.fr", password: "Medecin123!" },
+    secretaire: { email: "secretaire@medicare.fr", password: "Secret123!" },
+    admin: { email: "admin@medicare.fr", password: "Admin123!" },
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const result = login(email, password, role);
+    if (result.success) {
+      navigate(dashboardRoutes[role]);
+    } else {
+      setError(result.error || "Erreur de connexion");
+    }
+  };
+
+  const fillDemo = () => {
+    const creds = demoCredentials[role];
+    setEmail(creds.email);
+    setPassword(creds.password);
+    setError("");
   };
 
   return (
@@ -53,11 +85,11 @@ const Login = () => {
           <p className="text-muted-foreground mb-8">Accédez à votre espace personnel</p>
 
           {/* Role selector */}
-          <div className="flex gap-1 p-1 bg-secondary rounded-xl mb-8">
+          <div className="flex gap-1 p-1 bg-secondary rounded-xl mb-6">
             {roles.map((r) => (
               <button
                 key={r.key}
-                onClick={() => setRole(r.key)}
+                onClick={() => { setRole(r.key); setError(""); }}
                 className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
                   role === r.key
                     ? "bg-primary text-primary-foreground shadow-sm"
@@ -69,16 +101,34 @@ const Login = () => {
             ))}
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              window.location.href = dashboardRoutes[role];
-            }}
-            className="space-y-5"
+          {/* Demo credentials hint */}
+          <button
+            type="button"
+            onClick={fillDemo}
+            className="w-full mb-6 p-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-xs text-primary hover:bg-primary/10 transition-colors text-center"
           >
+            🔑 Remplir avec les identifiants démo ({roles.find(r => r.key === role)?.label})
+          </button>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="votre@email.com" className="h-12 rounded-xl" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="votre@email.com"
+                className="h-12 rounded-xl"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -92,6 +142,9 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className="h-12 rounded-xl pr-12"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"
