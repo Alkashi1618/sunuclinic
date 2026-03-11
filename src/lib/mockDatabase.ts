@@ -115,6 +115,27 @@ export function authenticate(email: string, password: string, role: UserRole): {
   return { success: true, user };
 }
 
+// ─── Update User ───
+
+export function updateUser(id: string, data: Partial<Pick<User, "firstName" | "lastName" | "phone" | "dateOfBirth">>): { success: boolean; error?: string } {
+  const users = getAllUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) return { success: false, error: "Utilisateur introuvable." };
+  users[idx] = { ...users[idx], ...data };
+  localStorage.setItem(STORAGE_KEY, UserSerializer.serializeList(users));
+  return { success: true };
+}
+
+export function changePassword(id: string, currentPassword: string, newPassword: string): { success: boolean; error?: string } {
+  const users = getAllUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) return { success: false, error: "Utilisateur introuvable." };
+  if (users[idx].password !== currentPassword) return { success: false, error: "Mot de passe actuel incorrect." };
+  users[idx].password = newPassword;
+  localStorage.setItem(STORAGE_KEY, UserSerializer.serializeList(users));
+  return { success: true };
+}
+
 // ─── Session ───
 
 export function saveSession(user: User): void {

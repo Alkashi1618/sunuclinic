@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: UserRole) => { success: boolean; error?: string };
   register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string; dateOfBirth?: string; role: UserRole }) => { success: boolean; error?: string };
   logout: () => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
