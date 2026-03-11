@@ -123,6 +123,8 @@ export function updateUser(id: string, data: Partial<Pick<User, "firstName" | "l
   if (idx === -1) return { success: false, error: "Utilisateur introuvable." };
   users[idx] = { ...users[idx], ...data };
   localStorage.setItem(STORAGE_KEY, UserSerializer.serializeList(users));
+  // Refresh session with updated data
+  saveSession(users[idx]);
   return { success: true };
 }
 
