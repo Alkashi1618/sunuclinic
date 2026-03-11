@@ -44,6 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { success: result.success, error: result.error };
   };
 
+  const logout = () => {
+    setUser(null);
+    clearSession();
+  };
+
   const refreshUser = () => {
     const session = getSession();
     if (session) setUser(session);
