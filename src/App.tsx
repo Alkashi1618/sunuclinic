@@ -14,6 +14,7 @@ import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import SecretaryDashboard from "./pages/SecretaryDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/medecin" element={<ProtectedRoute allowedRoles={["medecin"]}><DoctorDashboard /></ProtectedRoute>} />
             <Route path="/secretaire" element={<ProtectedRoute allowedRoles={["secretaire"]}><SecretaryDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/profil" element={<ProtectedRoute allowedRoles={["patient", "medecin", "secretaire", "admin"]}><Profile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

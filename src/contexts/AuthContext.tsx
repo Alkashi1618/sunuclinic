@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: UserRole) => { success: boolean; error?: string };
   register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string; dateOfBirth?: string; role: UserRole }) => { success: boolean; error?: string };
   logout: () => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -48,8 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearSession();
   };
 
+  const refreshUser = () => {
+    const session = getSession();
+    if (session) setUser(session);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
